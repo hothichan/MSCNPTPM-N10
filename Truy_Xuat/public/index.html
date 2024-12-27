@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Truy xuất thông tin sản phẩm</title>
+  <script>
+    async function searchProduct() {
+      const keyword = document.getElementById("keyword").value;
+
+      if (!keyword) {
+        alert("Vui lòng nhập từ khóa để tìm kiếm.");
+        return;
+      }
+
+      try {
+        const response = await fetch(`/search?keyword=${keyword}`);
+        const resultContainer = document.getElementById("results");
+
+        if (response.ok) {
+          const data = await response.json();
+          resultContainer.innerHTML = data
+            .map(
+              block => `
+                <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
+                  <p><strong>Tên sản phẩm:</strong> ${block.data.productName}</p>
+                  <p><strong>Số lô:</strong> ${block.data.batchNumber}</p>
+                  <p><strong>Nơi xuất xứ:</strong> ${block.data.origin || "Không xác định"}</p>
+                  <p><strong>Số lượng:</strong> ${block.data.quantity}</p>
+                  <p><strong>Ngày sản xuất:</strong> ${block.data.productionDate}</p>
+                </div>
+              `
+            )
+            .join("");
+        } else {
+          const error = await response.json();
+          resultContainer.innerHTML = `<p style="color: red;">${error.error}</p>`;
+        }
+      } catch (error) {
+        console.error("Lỗi khi gọi API:", error);
+      }
+    }
+  </script>
+</head>
+<body>
+  <h1>Truy xuất thông tin sản phẩm</h1>
+  <label for="keyword">Nhập từ khóa:</label>
+  <input type="text" id="keyword" placeholder="Nhập từ khóa để tìm kiếm">
+  <button onclick="searchProduct()">Tìm kiếm</button>
+  <div id="results" style="margin-top: 20px;"></div>
+</body>
+</html>
